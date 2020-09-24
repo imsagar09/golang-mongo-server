@@ -193,7 +193,7 @@ func meets_handler(w http.ResponseWriter, r *http.Request){
 			}else{
 				start_time := start[0]
 				end_time := end[0]
-				fmt.Println(start_time, end_time)
+				// fmt.Println(start_time, end_time)
 				start_tim, err := time.Parse(time.RFC3339, start_time)
 				//check if the time format is valid
 				if err!=nil{
