@@ -7,10 +7,10 @@ To run the server -
 go run filepath/index.go
 ```
 #### Note
-*You must install all necessary modules before execution. (especially mongodb-go-driver) 
+* You must install all necessary modules before execution. (especially mongodb-go-driver) 
 https://github.com/mongodb/mongo-go-driver
-*The server uses a local mongodb server running at 27017 port
-*Port number is configured to be 8082
+* The server uses a local mongodb server running at 27017 port
+* Port number is configured to be 8082
 
 
 ## Endpoints
