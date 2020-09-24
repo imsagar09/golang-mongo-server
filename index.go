@@ -87,6 +87,10 @@ func meets_handler(w http.ResponseWriter, r *http.Request){
 	switch r.Method{
 	//if method is POST
 	case "POST":
+		//disallow query strings with POST method
+		if keys := r.URL.Query(); len(keys)!=0{
+			invalid_request(w, 400, "Queries not allowed at this endpoint with this method")
+		}else{
 		//error handling if request not JSON
 		if ua := r.Header.Get("Content-Type"); ua!="application/json"{
 			invalid_request(w, 400, "This end point accepts only JSON request body")
@@ -104,21 +108,48 @@ func meets_handler(w http.ResponseWriter, r *http.Request){
 			m.Id = primitive.NewObjectID() //assign unique ObjectID
 			ctx, _ := context.WithTimeout(context.Background(), 10*time.Second) //timeout
 			meetingCollection := connectdb(ctx)  //meeting collection
+			//check for overlap of participants
+			final_check := false
+			//iterate over al participants and find clashes is db
+			for _, particip := range m.Part{
+				
+				var check meeting
+				check1  := true
+				check2  := true
+				check3  := true 
+				if err = meetingCollection.FindOne(ctx, bson.M{"start": bson.D{{"$lte", m.Start}}, "end": bson.D{{"$gt", m.Start}}, "participants.email": particip.Email}).Decode(&check); err!=nil{
+					check1 = false
+				}
+				if err = meetingCollection.FindOne(ctx, bson.M{"start": bson.D{{"$lt", m.End}}, "end": bson.D{{"$gte",m.End}}, "participants.email":particip.Email}).Decode(&check); err!=nil{
+					check2 = false
+				}
+				if err = meetingCollection.FindOne(ctx, bson.M{"start": bson.D{{"$gte", m.Start}}, "end": bson.D{{"$lte", m.End}}, "participants.email":particip.Email}).Decode(&check); err!=nil{
+					check3 = false
+				}
+				if check1 || check2 || check3 {
+					final_check =true
+				}
+			
+			}
+			if final_check{
+				invalid_request(w, 400, "Meeting clashes with other meeting/s with some common participant/s")
 
-			//insert decoument to meetings collection
-			insertResult, err := meetingCollection.InsertOne(ctx, m)
-			if err != nil {
-				log.Fatal(err)
-				return
+			}else{
+					insertResult, err := meetingCollection.InsertOne(ctx, m)
+					if err != nil {
+						log.Fatal(err)
+						return
+					}
+
+					//write back meeting id as JSON response
+					w.Header().Set("Content-Type", "application/json")
+					meet := new_meet{
+							Meet_ID: insertResult.InsertedID.(primitive.ObjectID).Hex()}
+					json.NewEncoder(w).Encode(meet)
 			}
 
-			//write back meeting id as JSON response
-			w.Header().Set("Content-Type", "application/json")
-			meet := new_meet{
-					Meet_ID: insertResult.InsertedID.(primitive.ObjectID).Hex()}
-			json.NewEncoder(w).Encode(meet)
-
 		}
+	}
 	//if method is GET
 	case "GET":
 		keys := r.URL.Query()
