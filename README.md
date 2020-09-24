@@ -23,15 +23,15 @@ https://github.com/mongodb/mongo-go-driver
 "Participants":[{"Name": "ritvix", "Email": "xyz@gmail.com", "RSVP": "Yes"}, <br>{"Name": "tom", "Email": "fhg@gmail.com", "RSVP": "No"}],<br>
 "Start Time":"2017-08-30T13:11:10Z",<br>
 "End Time": "2017-08-30T13:14:00Z"
- }<br>
+ }<br><br>
  
 returns meeting_id
 ### /meetings?participant=mail_id_of_participant
   * method GET
-  eg -<br>
-  localhost:8082/meetings?participant=xyz@gmail.com
-  <br>
-  returns array of meetings
+   eg -<br>
+   localhost:8082/meetings?participant=xyz@gmail.com
+ 
+   returns array of meetings<br>
 ### /meetings?start=start_time&end=end_time
   * method GET
   eg - <br>
@@ -41,9 +41,9 @@ returns meeting_id
   
 ### /meeting/meeting_id
   * method GET
-  eg -<br>
-  localhost:8082/meeting/5f6c38e61d6ae7bcf78abd1b
-  <br>
-  returns meeting
+    eg -<br>
+    localhost:8082/meeting/5f6c38e61d6ae7bcf78abd1b
+    <br><br>
+   returns meeting
  
 
